@@ -68,6 +68,14 @@ describe('Sequelize', function () {
 		Sequelize.prototype.should.have.property('Error').which.is.equal(ErrorMock.BaseError);
 	});
 	
+	it('should have `col` method', function () {
+		Sequelize.should.have.property('col').which.is.a.Function();
+	});
+
+	it('should have `fn` method', function () {
+		Sequelize.should.have.property('fn').which.is.a.Function();
+	});
+	
 	describe('__constructor', function () {
 		it('should default dialect to mock', function () {
 			var seq = new Sequelize();

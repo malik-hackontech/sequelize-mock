@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * The mock class for the base Sequelize interface.
@@ -7,15 +7,15 @@
  * @fileOverview Mock class for the base Sequelize class
  */
 
-var path = require('path'),
-	_ = require('lodash'),
-	Model = require('./model'),
-	Instance = require('./instance'),
-	Utils = require('./utils'),
-	Errors = require('./errors'),
-	DataTypes = require('./data-types')({}),
-	QueryInterface = require('./queryinterface'),
-	Op = require('./operators');
+var path = require("path"),
+  _ = require("lodash"),
+  Model = require("./model"),
+  Instance = require("./instance"),
+  Utils = require("./utils"),
+  Errors = require("./errors"),
+  DataTypes = require("./data-types")({}),
+  QueryInterface = require("./queryinterface"),
+  Op = require("./operators");
 
 /**
  * Sequelize Mock Object. This can be initialize much the same way that Sequelize itself
@@ -33,41 +33,46 @@ var path = require('path'),
  * @param {Boolean} [options.stopPropagation] Flag inherited by defined Models indicating if we should not propagate to the parent
  **/
 function Sequelize(database, username, password, options) {
-	if(typeof database == 'object') {
-		options = database;
-	} else if (typeof username == 'object') {
-		options = username;
-	} else if (typeof password == 'object') {
-		options = password;
-	}
+  if (typeof database == "object") {
+    options = database;
+  } else if (typeof username == "object") {
+    options = username;
+  } else if (typeof password == "object") {
+    options = password;
+  }
 
-	this.queryInterface = new QueryInterface( _.pick(options || {}, ['stopPropagation']) );
+  this.queryInterface = new QueryInterface(
+    _.pick(options || {}, ["stopPropagation"]),
+  );
 
-	/**
-	 * Options passed into the Sequelize initialization
-	 *
-	 * @member Sequelize
-	 * @property
-	 **/
-	this.options = _.extend({
-		dialect: 'mock',
-	}, options || {});
+  /**
+   * Options passed into the Sequelize initialization
+   *
+   * @member Sequelize
+   * @property
+   **/
+  this.options = _.extend(
+    {
+      dialect: "mock",
+    },
+    options || {},
+  );
 
-	/**
-	 * Used to cache and override model imports for easy mock model importing
-	 *
-	 * @member Sequelize
-	 * @property
-	 **/
-	this.importCache = {};
+  /**
+   * Used to cache and override model imports for easy mock model importing
+   *
+   * @member Sequelize
+   * @property
+   **/
+  this.importCache = {};
 
-	/**
-	 * Models that have been defined in this Sequelize Mock instances
-	 *
-	 * @member Sequelize
-	 * @property
-	 **/
-	this.models = {};
+  /**
+   * Models that have been defined in this Sequelize Mock instances
+   *
+   * @member Sequelize
+   * @property
+   **/
+  this.models = {};
 }
 /**
  * Version number for the Mock library
@@ -75,7 +80,7 @@ function Sequelize(database, username, password, options) {
  * @member Sequelize
  * @property
  **/
-Sequelize.version = require('../package.json').version;
+Sequelize.version = require("../package.json").version;
 
 /**
  * Options object that exists on Sequelize but is not exposed in the API docs. Included
@@ -85,7 +90,7 @@ Sequelize.version = require('../package.json').version;
  * @property
  * @private
  **/
-Sequelize.options = {hooks: {}};
+Sequelize.options = { hooks: {} };
 
 /**
  * Reference to the mock Sequelize class
@@ -114,19 +119,19 @@ Sequelize.prototype.Promise = Sequelize.Promise = Promise;
  * @property
  **/
 Sequelize.QueryTypes = {
-	SELECT: 'SELECT',
-	INSERT: 'INSERT',
-	UPDATE: 'UPDATE',
-	BULKUPDATE: 'BULKUPDATE',
-	BULKDELETE: 'BULKDELETE',
-	DELETE: 'DELETE',
-	UPSERT: 'UPSERT',
-	VERSION: 'VERSION',
-	SHOWTABLES: 'SHOWTABLES',
-	SHOWINDEXES: 'SHOWINDEXES',
-	DESCRIBE: 'DESCRIBE',
-	RAW: 'RAW',
-	FOREIGNKEYS: 'FOREIGNKEYS',
+  SELECT: "SELECT",
+  INSERT: "INSERT",
+  UPDATE: "UPDATE",
+  BULKUPDATE: "BULKUPDATE",
+  BULKDELETE: "BULKDELETE",
+  DELETE: "DELETE",
+  UPSERT: "UPSERT",
+  VERSION: "VERSION",
+  SHOWTABLES: "SHOWTABLES",
+  SHOWINDEXES: "SHOWINDEXES",
+  DESCRIBE: "DESCRIBE",
+  RAW: "RAW",
+  FOREIGNKEYS: "FOREIGNKEYS",
 };
 
 /**
@@ -150,15 +155,15 @@ Sequelize.prototype.Instance = Sequelize.Instance = Instance;
  * @property Error
  **/
 _.each(Errors, function (fn, name) {
-	if(name == 'BaseError') {
-		// Aliased to Error for some reason...
-		name = 'Error';
-	}
-	Sequelize.prototype[name] = Sequelize[name] = fn;
+  if (name == "BaseError") {
+    // Aliased to Error for some reason...
+    name = "Error";
+  }
+  Sequelize.prototype[name] = Sequelize[name] = fn;
 });
 
 // DATA TYPES
-require('./data-types')(Sequelize);
+require("./data-types")(Sequelize);
 
 /* Test Specific Functionality
  *
@@ -173,11 +178,12 @@ require('./data-types')(Sequelize);
  * @param {Any} result The object or value to be returned as the result of a query
  * @return {Sequelize} self
  **/
-Sequelize.prototype.$queueResult = function(result) {
-	this.queryInterface.$queueResult(result);
-	return this;
+Sequelize.prototype.$queueResult = function (result) {
+  this.queryInterface.$queueResult(result);
+  return this;
 };
-Sequelize.prototype.$queueQueryResult = Sequelize.prototype.$qqr = Sequelize.prototype.$queueResult;
+Sequelize.prototype.$queueQueryResult = Sequelize.prototype.$qqr =
+  Sequelize.prototype.$queueResult;
 
 /**
  * Queue a new query result to be returned by either the `query` method call or as a
@@ -194,14 +200,15 @@ Sequelize.prototype.$queueQueryResult = Sequelize.prototype.$qqr = Sequelize.pro
  * @param {Boolean} [options.convertNonErrors] Flag indicating if non `Error` objects should be allowed. Defaults to true
  * @return {Sequelize} self
  **/
-Sequelize.prototype.$queueFailure = function(error, options) {
-	this.queryInterface.$queueFailure(error, options);
-	return this;
+Sequelize.prototype.$queueFailure = function (error, options) {
+  this.queryInterface.$queueFailure(error, options);
+  return this;
 };
 Sequelize.prototype.$queueError =
-Sequelize.prototype.$queueQueryError =
-Sequelize.prototype.$queueQueryFailure =
-Sequelize.prototype.$qqf = Sequelize.prototype.$queueFailure;
+  Sequelize.prototype.$queueQueryError =
+  Sequelize.prototype.$queueQueryFailure =
+  Sequelize.prototype.$qqf =
+    Sequelize.prototype.$queueFailure;
 
 /**
  * Clears any queued results from `$queueResult` or `$queueFailure`
@@ -214,14 +221,15 @@ Sequelize.prototype.$qqf = Sequelize.prototype.$queueFailure;
  * @alias $qqc
  * @return {Sequelize} self
  **/
-Sequelize.prototype.$clearQueue = function() {
-	this.queryInterface.$clearQueue();
-	return this;
+Sequelize.prototype.$clearQueue = function () {
+  this.queryInterface.$clearQueue();
+  return this;
 };
 Sequelize.prototype.$queueClear =
-Sequelize.prototype.$queueQueryClear =
-Sequelize.prototype.$cqq =
-Sequelize.prototype.$qqc = Sequelize.prototype.$clearQueue;
+  Sequelize.prototype.$queueQueryClear =
+  Sequelize.prototype.$cqq =
+  Sequelize.prototype.$qqc =
+    Sequelize.prototype.$clearQueue;
 
 /**
  * Overrides a path used for import
@@ -231,7 +239,7 @@ Sequelize.prototype.$qqc = Sequelize.prototype.$clearQueue;
  * @param {String} overridePath The path that should actually be used for resolving. If this path is relative, it will be relative to the file calling the import function
  **/
 Sequelize.prototype.$overrideImport = function (realPath, mockPath) {
-	this.importCache[realPath] = mockPath;
+  this.importCache[realPath] = mockPath;
 };
 
 /* Mock Functionality
@@ -242,8 +250,8 @@ Sequelize.prototype.$overrideImport = function (realPath, mockPath) {
  *
  * @return {String} The specified dialect
  */
-Sequelize.prototype.getDialect = function() {
-	return this.options.dialect;
+Sequelize.prototype.getDialect = function () {
+  return this.options.dialect;
 };
 
 /**
@@ -253,8 +261,8 @@ Sequelize.prototype.getDialect = function() {
  * @see {@link query}
  * @return {QueryInterface} The instantiated `QueryInterface` object used for test `query`
  */
-Sequelize.prototype.getQueryInterface = function() {
-	return this.queryInterface;
+Sequelize.prototype.getQueryInterface = function () {
+  return this.queryInterface;
 };
 
 /**
@@ -286,14 +294,17 @@ Sequelize.prototype.getQueryInterface = function() {
  * @return {Model} Mock Model as defined by the name, default values, and options provided
  */
 Sequelize.prototype.define = function (name, obj, opts) {
-	opts = _.extend({
-		sequelize: this,
-	}, opts || {})
+  opts = _.extend(
+    {
+      sequelize: this,
+    },
+    opts || {},
+  );
 
-	var model = new Model(name, obj, opts);
-	model.prototype = {}; //This line forces `prototype` onto the returned instance
-	this.models[name] = model;
-	return model;
+  var model = new Model(name, obj, opts);
+  model.prototype = {}; //This line forces `prototype` onto the returned instance
+  this.models[name] = model;
+  return model;
 };
 
 /**
@@ -307,7 +318,7 @@ Sequelize.prototype.define = function (name, obj, opts) {
  * @return {Boolean} True if the model is defined, false otherwise
  */
 Sequelize.prototype.isDefined = function (name) {
-	return name in this.models && typeof this.models[name] !== 'undefined';
+  return name in this.models && typeof this.models[name] !== "undefined";
 };
 
 /**
@@ -324,27 +335,30 @@ Sequelize.prototype.isDefined = function (name) {
  * @return {Any} The result of evaluating the imported file's function
  **/
 Sequelize.prototype.import = function (importPath) {
-	if(typeof this.importCache[importPath] === 'string') {
-		importPath = this.importCache[importPath];
-	}
+  if (typeof this.importCache[importPath] === "string") {
+    importPath = this.importCache[importPath];
+  }
 
-	if(path.normalize(importPath) !== path.resolve(importPath)) {
-		// We're relative, and need the calling files location
-		var callLoc = path.dirname(Utils.stack()[1].getFileName());
+  if (path.normalize(importPath) !== path.resolve(importPath)) {
+    // We're relative, and need the calling files location
+    var callLoc = path.dirname(Utils.stack()[1].getFileName());
 
-		importPath = path.resolve(callLoc, importPath);
-	}
+    importPath = path.resolve(callLoc, importPath);
+  }
 
-	if(this.importCache[importPath] === 'string' || !this.importCache[importPath]) {
-		var defineCall = arguments.length > 1 ? arguments[1] : require(importPath);
-		if(typeof defineCall === 'object') {
-			// ES6 module compatibility
-			defineCall = defineCall.default;
-		}
-		this.importCache[importPath] = defineCall(this, DataTypes);
-	}
+  if (
+    this.importCache[importPath] === "string" ||
+    !this.importCache[importPath]
+  ) {
+    var defineCall = arguments.length > 1 ? arguments[1] : require(importPath);
+    if (typeof defineCall === "object") {
+      // ES6 module compatibility
+      defineCall = defineCall.default;
+    }
+    this.importCache[importPath] = defineCall(this, DataTypes);
+  }
 
-	return this.importCache[importPath];
+  return this.importCache[importPath];
 };
 
 /**
@@ -359,12 +373,12 @@ Sequelize.prototype.import = function (importPath) {
  * @throws {Error} Will throw an error if the model is not defined (that is, if sequelize#isDefined returns false)
  */
 Sequelize.prototype.model = function (name) {
-	if (!this.isDefined(name)) {
-		throw new Error(name + ' has not been defined');
-	}
+  if (!this.isDefined(name)) {
+    throw new Error(name + " has not been defined");
+  }
 
-	return this.models[name];
-}
+  return this.models[name];
+};
 
 /**
  * Run a mock query against the `QueryInterface` associated with this Sequelize instance
@@ -372,7 +386,7 @@ Sequelize.prototype.model = function (name) {
  * @return {string} The next result of a query as queued to the `QueryInterface`
  */
 Sequelize.prototype.query = function () {
-	return this.queryInterface.$query();
+  return this.queryInterface.$query();
 };
 
 /**
@@ -390,19 +404,19 @@ Sequelize.prototype.query = function () {
  * @return {Promise} Promise that resolves the code is successfully run, otherwise it is rejected
  */
 Sequelize.prototype.transaction = async function (options, autoCallback) {
-	if (typeof options === 'function') {
-		autoCallback = options;
-		options = undefined;
-	}
-	if(!autoCallback) {
-		autoCallback = async function (t) {
-			return t;
-		};
-	}
-	return autoCallback({
-		commit: () => {},
-		rollback: () => {}
-	});
+  if (typeof options === "function") {
+    autoCallback = options;
+    options = undefined;
+  }
+  if (!autoCallback) {
+    autoCallback = async function (t) {
+      return t;
+    };
+  }
+  return autoCallback({
+    commit: () => {},
+    rollback: () => {},
+  });
 };
 
 /**
@@ -412,7 +426,7 @@ Sequelize.prototype.transaction = async function (options, autoCallback) {
  * @return {Any} value passed in
  */
 Sequelize.prototype.literal = function (arg) {
-	return arg;
+  return arg;
 };
 
 /**
@@ -420,8 +434,8 @@ Sequelize.prototype.literal = function (arg) {
  *
  * @return {Promise} will always resolve as a successful authentication
  */
-Sequelize.prototype.authenticate = async function() {
-	return;
+Sequelize.prototype.authenticate = async function () {
+  return;
 };
 
 /**
@@ -429,5 +443,16 @@ Sequelize.prototype.authenticate = async function() {
  * @see  {@link Operators}
  */
 Sequelize.Op = Op;
+/*
+ * Sequelize.fn as a noop
+ * Should be used with query queuing to return the expected data
+ */
+Sequelize.prototype.fn = function () {};
+
+/**
+ * Sequelize.col as a noop
+ * Should be used with query queuing to return the expected data
+ */
+Sequelize.prototype.col = function () {};
 
 module.exports = Sequelize;
