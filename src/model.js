@@ -536,7 +536,7 @@ fakeModel.prototype.upsert = function (values) {
  * @alias insertOrUpdate
  * @param {Object} values Values of the Instance being created
  * @param {Boolean} returning Whether the call should return Promise<[M, boolean]> or just boolean
- * @return {Promise<M, Boolean>} Promise that resolves with a boolean meant to indicate if something was inserted
+ * @return {Promise<Instance, Boolean>} Promise that resolves with upserted instance and a boolean to indicate if it was created 
  **/
 fakeModel.prototype.upsert = function (values, returning) {
 	var self = this;
