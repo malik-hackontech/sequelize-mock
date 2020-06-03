@@ -531,6 +531,27 @@ fakeModel.prototype.upsert = function (values) {
 }
 
 /**
+ * @instance
+ * @method upsert
+ * @alias insertOrUpdate
+ * @param {Object} values Values of the Instance being created
+ * @param {Boolean} returning Whether the call should return Promise<[M, boolean]> or just boolean
+ * @return {Promise<M, Boolean>} Promise that resolves with a boolean meant to indicate if something was inserted
+ **/
+fakeModel.prototype.upsert = function (values, returning) {
+	var self = this;
+	
+	return this.$query({
+		query: "upsert",
+		queryOptions: arguments,
+		//if there is nothing queued, return the input object with a created value equal to the createdDefault
+		fallbackFn: !this.options.autoQueryFallback ? null : function () {
+			return self.build(values).save().return([self.build(values), self.options.createdDefault]);
+		},
+	});
+}
+
+/**
  * Executes a mock query to create a set of new Instances in a bulk fashion. Without any
  * other configuration, the default behavior when no queueud query result is present is
  * to trigger a create on each item in a the given `set`.
