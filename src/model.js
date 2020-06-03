@@ -599,14 +599,14 @@ fakeModel.prototype.destroy = function (options) {
  * Executes a mock query to update a set of instances. Without any other configuration,
  * the default behavior when no queueud query result is present is to create 1 new
  * Instance that matches the where value from the first parameter and returns a Promise
- * with an array of the count of affected rows (always 1) and the affected rows if the
+ * with an array of the count of affected rows (always 1) and the affected rows unless the
  * `returning` option is set to true
  * 
  * @instance
  * @param {Object} values Values to build the Instance
  * @param {Object} [options] Options to use for the update
  * @param {Object} [options.returning] Whether or not to include the updated models in the return
- * @return {Promise<Array>} Promise with an array of the number of affected rows and the affected rows themselves if `options.returning` is true
+ * @return {Promise<Array>} Promise with an array of the number of affected rows and the affected rows themselves unless `options.returning` is true
  **/
 fakeModel.prototype.update = function (values, options) {
 	var self = this;
@@ -616,12 +616,13 @@ fakeModel.prototype.update = function (values, options) {
 		query: "update",
 		queryOptions: arguments,
 		options: options,
+		//if options.returning are empty or false, we are doing the default (returning both)
 		includeAffectedRows: !!options.returning,
 		fallbackFn: !this.options.autoQueryFallback ? null : function () {
 			if(!options.returning) {
-				return Promise.resolve([1]);
+				return Promise.resolve([ 1, [self.build(values)] ]);
 			}
-			return Promise.resolve([ 1, [self.build(values)] ]);
+			return Promise.resolve([1]);
 		},
 	});
 };
