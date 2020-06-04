@@ -335,7 +335,7 @@ fakeModel.prototype.findAndCountAll =  function (options) {
 };
 
 /**
- * Executes a mock query to find an instance with the given ID value. Without any other
+ * Executes a mock query to find an instance with the given primary key value. Without any other
  * configuration, the default behavior when no queueud query result is present is to
  * create a new Instance with the given id and wrap it in a promise.
  * 
@@ -346,7 +346,7 @@ fakeModel.prototype.findAndCountAll =  function (options) {
  * @param {Integer} id ID of the instance
  * @return {Promise<Instance>} Promise that resolves with an instance with the given ID
  **/
-fakeModel.prototype.findById = function (id) {
+fakeModel.prototype.findByPk = function (id) {
 	var self = this;
 	
 	return this.$query({
@@ -395,23 +395,6 @@ fakeModel.prototype.findOne = function (obj) {
 	});
 };
 
-/**
- * @instance
- * @method findByPk
- * @param {Object} [options] Map of values that the instance should have
- * @return {Promise<Instance | null>} Promise that resolves with an instance with the given properties or null
- **/
-fakeModel.prototype.findByPk = function (obj) {
-	var self = this;
-	
-	return this.$query({
-		query: "findByPk",
-		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return Promise.resolve( self.build(obj ? obj.where : {}) );
-		},
-	});
-};
 /**
  * Executes a mock query to find the max value of a field. Without any other
  * configuration, the default behavior when no queueud query result is present
