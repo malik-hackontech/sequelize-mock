@@ -283,7 +283,7 @@ fakeModelInstance.prototype.destroy = function () {
 		throw queued;
 	}
 	else{
-		this.Model.$queueResult(queued);
+		this.Model.$queueResult(queued.content, queued.options);
 	}
 	
 	this._values.deletedAt = new Date();
