@@ -278,6 +278,11 @@ fakeModelInstance.prototype.save = function () {
  * @return {Promise} will always resolve as a successful destroy
  **/
 fakeModelInstance.prototype.destroy = function () {
+	var queued = this.Model.$query();
+	if(queued.type === 'Failure'){
+		throw queued;
+	}
+	
 	this._values.deletedAt = new Date();
 	return bluebird.resolve();
 };

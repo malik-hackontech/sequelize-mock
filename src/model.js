@@ -346,6 +346,7 @@ fakeModel.prototype.findAndCountAll =  function (options) {
  * @param {Integer} id ID of the instance
  * @return {Promise<Instance>} Promise that resolves with an instance with the given ID
  **/
+fakeModel.prototype.findById = 
 fakeModel.prototype.findByPk = function (id) {
 	var self = this;
 	
@@ -575,7 +576,7 @@ fakeModel.prototype.bulkCreate = function (set, options) {
 
 /**
  * Executes a mock query to destroy a set of Instances. Without any other configuration,
- * the default behavior when no queueud query result is present is to resolve with either
+ * the default behavior when no queued query result is present is to resolve with either
  * the limit from the options or a 1.
  * 
  * @instance
