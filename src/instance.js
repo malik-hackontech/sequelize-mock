@@ -282,6 +282,9 @@ fakeModelInstance.prototype.destroy = function () {
 	if(queued.type === 'Failure'){
 		throw queued;
 	}
+	else{
+		this.Model.$queueResult(queued);
+	}
 	
 	this._values.deletedAt = new Date();
 	return bluebird.resolve();
