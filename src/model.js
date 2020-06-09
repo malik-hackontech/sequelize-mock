@@ -474,7 +474,14 @@ fakeModel.prototype.build = function (values, options) {
  * @return {Promise<Instance>} a promise that resolves after saving a new instance with the given properties
  **/
 fakeModel.prototype.create = async function (obj) {
-	return await this.build(obj).save();
+	return await this.$query({
+		query: "Create",
+		queryOptions: arguments,
+		includeCreated: true,
+		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
+			return await self.build(obj.where).save();
+		},
+	});
 };
 /**
  * Executes a mock query to find or create an Instance with the given properties. Without
