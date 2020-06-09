@@ -357,8 +357,10 @@ describe('QueryInterface', function () {
 
 		it('should respect rejected promises returned from handler', function(done) {
 			qi.$useHandler(function(query, options) {
-				Promise.reject('error');
+				return Promise.reject('error');
 			});
+			
+			let x = qi.$query();
 			qi.$query().catch(function(error) {
 				error.should.equal('error');
 				done();

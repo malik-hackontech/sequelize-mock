@@ -179,7 +179,7 @@ function resultsQueueHandler(qi, options) {
 		}
 		
 		if(result.type == 'Failure') {
-			throw result.content;
+			return Promise.reject(result.content);
 		}
 		
 		if(options.includeCreated) {
@@ -188,7 +188,7 @@ function resultsQueueHandler(qi, options) {
 				created = !!result.options.wasCreated;
 			}
 			
-			return [result.content, created];
+			return Promise.resolve([result.content, created]);
 		}
 		if (options.includeAffectedRows) {
 			var affectedRows = [];
@@ -196,9 +196,9 @@ function resultsQueueHandler(qi, options) {
 				affectedRows = result.options.affectedRows;
 			}
 			
-			return [result.content, affectedRows];
+			return Promise.resolve([result.content, affectedRows]);
 		}
-		return result.content;
+		return Promise.resolve(result.content);
 	}
 }
 
