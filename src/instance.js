@@ -280,7 +280,7 @@ fakeModelInstance.prototype.save = function () {
 fakeModelInstance.prototype.destroy = function () {
 	var queued = this.Model.$query();
 	if(queued.type === 'Failure'){
-		throw queued;
+		throw queued.content;
 	}
 	else{
 		this.Model.$queueResult(queued.content, queued.options);
