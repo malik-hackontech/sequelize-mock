@@ -1,7 +1,6 @@
 'use strict';
 
 var should = require('should');
-var bluebird = require('bluebird');
 var proxyquire = require('proxyquire').noCallThru();
 var util = require('util');
 
@@ -348,7 +347,7 @@ describe('QueryInterface', function () {
 		
 		it('should return the promise of the handler', function(done) {
 			qi.$useHandler(function(query, options) {
-				return bluebird.resolve('handler value');
+				return Promise.resolve('handler value');
 			});
 			qi.$query().then(function(value) {
 				value.should.equal('handler value');
@@ -358,7 +357,7 @@ describe('QueryInterface', function () {
 
 		it('should respect rejected promises returned from handler', function(done) {
 			qi.$useHandler(function(query, options) {
-				return bluebird.reject('error');
+				Promise.reject('error');
 			});
 			qi.$query().catch(function(error) {
 				error.should.equal('error');
@@ -368,7 +367,7 @@ describe('QueryInterface', function () {
 		
 		it('should return a promise even if the value is undefined', function(done) {
 			qi.$useHandler(function(query, options) {
-				return bluebird.resolve(undefined);
+				return Promise.resolve(undefined);
 			});
 			qi.$query().then(function(value) {
 				(typeof target).should.be.equal('undefined');
@@ -390,9 +389,7 @@ describe('QueryInterface', function () {
 		
 		it('should work with async handlers', function(done) {
 			qi.$useHandler(function(query, options) {
-				return new bluebird(function(resolve, reject) {
-					resolve('done');
-				});
+				return 'done';
 			});
 			
 			qi.$query().then(function(value) {
@@ -478,22 +475,20 @@ describe('QueryInterface', function () {
 				qi = new QueryInterface();
 			});
 			
-			it('should default the created parameter to true when there is no default specified', function (done) {
+			it('should default the created parameter to true when there is no default specified', async function() {
 				qi._results = [{
 					content: 'foo',
 					options: {},
 					type: 'Success'
 				}];
 				
-				var result = qi.$query({ includeCreated: true });
-				result.spread(function (content, created) {
-					content.should.equal('foo');
-					created.should.be.true();
-					done();
-				}).catch(done);
+				var result = await qi.$query({ includeCreated: true });
+				result[0].should.equal('foo');
+				result[1].should.be.true();
+				
 			});
 			
-			it('should default to the createdDefault from the QueryInterface if specified', function (done) {
+			it('should default to the createdDefault from the QueryInterface if specified', async function() {
 				qi.options.createdDefault = false;
 				qi._results = [{
 					content: 'foo',
@@ -501,15 +496,12 @@ describe('QueryInterface', function () {
 					type: 'Success'
 				}];
 				
-				var result = qi.$query({ includeCreated: true });
-				result.spread(function (content, created) {
-					content.should.equal('foo');
-					created.should.be.false();
-					done();
-				}).catch(done);
+				var result = await qi.$query({ includeCreated: true });
+				result[0].should.equal('foo');
+				result[1].should.be.false();
 			});
 			
-			it('should use the wasCreated from the query if specified', function (done) {
+			it('should use the wasCreated from the query if specified', async function() {
 				qi.options.createdDefault = false;
 				qi._results = [{
 					content: 'foo',
@@ -521,16 +513,13 @@ describe('QueryInterface', function () {
 					type: 'Success'
 				}];
 				
-				var result = qi.$query({ includeCreated: true });
-				result.spread(function (content, created) {
-					content.should.equal('foo');
-					created.should.be.true();
-					return qi.$query({ includeCreated: true });
-				}).spread(function (content, created) {
-					content.should.equal('bar');
-					created.should.be.false();
-					done();
-				}).catch(done);
+				var result = await qi.$query({ includeCreated: true });
+				result[0].should.equal('foo');
+				result[1].should.be.true();
+
+				let query = await qi.$query({ includeCreated: true });
+				query[0].should.equal('bar');
+				query[1].should.be.false();
 			});
 			
 		});
@@ -541,24 +530,21 @@ describe('QueryInterface', function () {
 				qi = new QueryInterface();
 			});
 			
-			it('should default the affectedRows parameter to an empty array', function (done) {
-				var rows = [1, 2, 3];
+			it('should default the affectedRows parameter to an empty array', async function() {
 				qi._results = [{
 					content: 'foo',
 					options: { },
 					type: 'Success'
 				}];
 				
-				var result = qi.$query({ includeAffectedRows: true });
-				result.spread(function (content, affectedRows) {
-					content.should.equal('foo');
-					affectedRows.should.be.an.Array();
-					affectedRows.length.should.equal(0);
-					done();
-				}).catch(done);
+				let [content, affectedRows] = await qi.$query({ includeAffectedRows: true });
+			
+				content.should.equal('foo');
+				affectedRows.should.be.an.Array();
+				affectedRows.length.should.equal(0);
 			});
 			
-			it('should pass along affectedRows option specified in result', function (done) {
+			it('should pass along affectedRows option specified in result', async function() {
 				var rows = [1, 2, 3];
 				qi._results = [{
 					content: 'foo',
@@ -566,12 +552,9 @@ describe('QueryInterface', function () {
 					type: 'Success'
 				}];
 				
-				var result = qi.$query({ includeAffectedRows: true });
-				result.spread(function (content, affectedRows) {
-					content.should.equal('foo');
-					affectedRows.should.equal(rows);
-					done();
-				}).catch(done);
+				var [content, affectedRows] = await qi.$query({ includeAffectedRows: true });
+				content.should.equal('foo');
+				affectedRows.should.equal(rows);
 			});
 			
 		});
@@ -582,28 +565,25 @@ describe('QueryInterface', function () {
 				qi = new QueryInterface();
 			});
 			
-			it('should default to calling into parent queue if a parent exists', function (done) {
+			it('should default to calling into parent queue if a parent exists', async function() {
 				var run = 0;
 				qi._results = [];
 				qi.options.parent = {
-					$query: function () { run++; return 'foo'; }
+					$query: async function() { run++; return 'foo'; }
 				};
 				
-				qi.$query().then(function (content) {
-					content.should.equal('foo');
-					run.should.equal(1);
-					done();
-				}).catch(done);
+				var content = await qi.$query();
+				content.should.equal('foo');
+				run.should.equal(1);
 			});
 			
-			it('should not call into parent if QueryInterface option is to stopPropagation', function () {
+			it('should not call into parent if QueryInterface option is to stopPropagation', async function () {
 				var run = 0;
 				qi._results = [];
 				qi.options.parent = {
-					$query: function () { run++; return 'foo'; }
+					$query: async function () { run++; return 'foo'; }
 				};
 				qi.options.stopPropagation = true;
-				
 				should.throws(qi.$query.bind(qi), ErrorsMock.EmptyQueryQueueError);
 				run.should.equal(0);
 			});
@@ -611,8 +591,9 @@ describe('QueryInterface', function () {
 			it('should not call into parent if query option is to stopPropagation', function () {
 				var run = 0;
 				qi._results = [];
+				//qi.options = {};
 				qi.options.parent = {
-					$query: function () { run++; return 'foo'; }
+					$query: async function () { run++; return 'foo'; }
 				};
 				qi.options.stopPropagation = false;
 				

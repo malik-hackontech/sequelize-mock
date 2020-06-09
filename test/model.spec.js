@@ -1,11 +1,10 @@
 'use strict';
 
 var should = require('should');
-var bluebird = require('bluebird');
 var proxyquire = require('proxyquire').noCallThru();
 
 var InstanceMock = function () { this._args = arguments; };
-InstanceMock.prototype.save = function () { return bluebird.resolve(this); };
+InstanceMock.prototype.save = async function () { return this; };
 
 var UtilsMock = {
 	uppercaseFirst: function (str) { return str; },
@@ -209,7 +208,7 @@ describe('Model', function () {
 		});
 		
 		it('should return a promise', function () {
-			mdl.sync().should.be.instanceOf(bluebird);
+			mdl.sync().should.be.instanceOf(Promise);
 		});
 	});
 	
@@ -220,7 +219,7 @@ describe('Model', function () {
 		});
 		
 		it('should return a promise', function () {
-			mdl.drop().should.be.instanceOf(bluebird);
+			mdl.drop().should.be.instanceOf(Promise);
 		});
 	});
 	
@@ -278,29 +277,38 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should pass back default of 1 row updated', function (done) {
+		it('should pass back default of 1 row updated', async function () {
 			var vals = {
 				'baz' : 'bin'
 			};
-			
-			mdl.update(vals).fallbackFn().spread(function (number, rows) {
-				number.should.equal(1);
-				done();
-			}).catch(done);
+			let res = await mdl.update(vals);
+			let [number, rows] = await res.fallbackFn()
+			number.should.equal(1);
 		});
 		
-		it('should pass back row updated when returning option is included', function (done) {
+		it('should pass back row updated when returning option is included', async function () {
 			var vals = {
 				'baz' : 'bin'
 			};
 			
-			mdl.update(vals, {returning: true})
-				.fallbackFn().spread(function (number, rows) {
-					rows.should.be.Array();
-					rows[0]._args[0].should.have.property('baz').which.is.exactly('bin');
-					done();
-				}).catch(done);
+			let res = await mdl.update(vals, {returning: true});
+			let [number, rows] = await res.fallbackFn()
+			rows.should.be.Array();
+			rows[0]._args[0].should.have.property('baz').which.is.exactly('bin');
+			
 		});
+
+		it('should not pass back row updated when returning option is set to false', async function () {
+			var vals = {
+				'baz' : 'bin'
+			};
+			
+			let res = await mdl.update(vals, {returning: false});
+			let [number, rows] = await res.fallbackFn()
+			number.should.be.equal(1);
+			should.not.exist(rows);
+		});
+			
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
 			mdl.options.autoQueryFallback = false;
@@ -328,27 +336,23 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should find a row with no options given', function (done) {
-			mdl.findOne()
-				.fallbackFn().then(function (inst) {
-					should.exist(inst)
-					inst.should.be.instanceOf(InstanceMock);
-					done();
-				}).catch(done);
+		it('should find a row with no options given', async function() {
+			let res  = await mdl.findOne()
+			let inst = await res.fallbackFn()
+			should.exist(inst)
+			inst.should.be.instanceOf(InstanceMock);
 		});
 		
-		it('should find a row with the values from the `where` query', function (done) {
+		it('should find a row with the values from the `where` query', async function () {
 			var options = {
 				where: {
 					'foo': 'bar',
 				},
 			};
 			
-			mdl.findOne(options)
-				.fallbackFn().then(function (inst) {
-					inst._args[0].should.have.property('foo').which.is.exactly('bar');
-					done();
-				}).catch(done);
+			let res = await mdl.findOne(options)
+			let inst = await res.fallbackFn()
+			inst._args[0].should.have.property('foo').which.is.exactly('bar');
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
@@ -379,12 +383,10 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should find a row with the given id', function (done) {
-			mdl.findById(1234)
-				.fallbackFn().then(function (inst) {
-					inst._args[0].id.should.equal(1234);
-					done();
-				}).catch(done);
+		it('should find a row with the given id', async function() {
+			let res = await mdl.findById(1234);
+			let inst = await res.fallbackFn();
+			inst._args[0].id.should.equal(1234);
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
@@ -409,14 +411,12 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should return the default value for the field', function (done) {
+		it('should return the default value for the field', async function () {
 			mdl._defaults.foo = 1234;
 			
-			mdl.sum('foo')
-				.fallbackFn().then(function (count) {
-					count.should.equal(1234);
-					done();
-				}).catch(done);
+			let res = await mdl.sum('foo')
+			let count = await res.fallbackFn()
+			count.should.equal(1234);
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
@@ -443,12 +443,10 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should return the createdDefault value for the model', function (done) {
-			mdl.upsert()
-				.fallbackFn().then(function (created) {
-					created.should.equal(mdl.options.createdDefault);
-					done();
-				}).catch(done);
+		it('should return the createdDefault value for the model', async function() {
+			let res = await mdl.upsert();
+			let created = await res.fallbackFn();
+			created.should.equal(mdl.options.createdDefault);
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
@@ -475,26 +473,22 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should pass along where value to Instance creation', function (done) {
+		it('should pass along where value to Instance creation', async function () {
 			var options = {
 				where: {
 					'foo': 'bar',
 				},
 			};
 			
-			mdl.findOrCreate(options)
-				.fallbackFn().spread(function (inst, created) {
-					inst._args[0].should.have.property('foo').which.is.exactly('bar');
-					done();
-				}).catch(done);
+			let res = await mdl.findOrCreate(options)
+			let [inst, created] =	await res.fallbackFn()
+			inst._args[0].should.have.property('foo').which.is.exactly('bar');
 		});
 		
-		it('should return the createdDefault value for the model', function (done) {
-			mdl.findOrCreate({})
-				.fallbackFn().spread(function (inst, created) {
-					created.should.equal(mdl.options.createdDefault);
-					done();
-				}).catch(done);
+		it('should return the createdDefault value for the model', async function () {
+			let res = await mdl.findOrCreate({})
+			let [inst, created] = await res.fallbackFn();
+			created.should.equal(mdl.options.createdDefault);
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
@@ -521,7 +515,7 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should create each model in the passed array', function (done) {
+		it('should create each model in the passed array', async function () {
 			var vals = [
 				{
 					'baz' : 'bin'
@@ -531,13 +525,11 @@ describe('Model', function () {
 				},
 			];
 			
-			mdl.bulkCreate(vals)
-				.fallbackFn().then(function (arr) {
-					arr.should.be.an.Array();
-					arr[0]._args[0].should.have.property('baz').which.is.exactly('bin');
-					arr[1]._args[0].should.have.property('qux').which.is.exactly('quuz');
-					done();
-				}).catch(done);
+			let res = await mdl.bulkCreate(vals);
+			let arr = await res.fallbackFn();
+			arr.should.be.an.Array();
+			arr[0]._args[0].should.have.property('baz').which.is.exactly('bin');
+			arr[1]._args[0].should.have.property('qux').which.is.exactly('quuz');
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
@@ -566,27 +558,23 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should pass along where value to Instance creation', function (done) {
+		it('should pass along where value to Instance creation', async function () {
 			var options = {
 				where: {
 					'foo': 'bar',
 				},
 			};
 			
-			mdl.findAll(options)
-				.fallbackFn().then(function (rows) {
-					rows.length.should.equal(1);
-					rows[0]._args[0].should.have.property('foo').which.is.exactly('bar');
-					done();
-				}).catch(done);
+			let query = await mdl.findAll(options);
+			let rows = await query.fallbackFn()
+			rows.length.should.equal(1);
+			rows[0]._args[0].should.have.property('foo').which.is.exactly('bar');
 		});
 		
-		it('should still find results if there is not options', function (done) {
-			mdl.findAll()
-				.fallbackFn().then(function (rows) {
-					rows.length.should.equal(1);
-					done();
-				}).catch(done);
+		it('should still find results if there is not options', async function() {
+			let query = await mdl.findAll();
+			let rows = await query.fallbackFn();
+			rows.length.should.equal(1);
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
@@ -613,29 +601,25 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should pass along where value to Instance creation', function (done) {
+		it('should pass along where value to Instance creation', async function() {
 			var options = {
 				where: {
 					'foo': 'bar',
 				},
 			};
 			
-			mdl.findAndCountAll(options)
-				.fallbackFn().then(function (result) {
-					result.rows.length.should.equal(1);
-					result.count.should.equal(1);
-					result.rows[0]._args[0].should.have.property('foo').which.is.exactly('bar');
-					done();
-				}).catch(done);
+			let query = await mdl.findAndCountAll(options);
+			let result =await query.fallbackFn()
+			result.rows.length.should.equal(1);
+			result.count.should.equal(1);
+			result.rows[0]._args[0].should.have.property('foo').which.is.exactly('bar');
 		});
 		
-		it('should still find results if there is not options', function (done) {
-			mdl.findAndCountAll()
-				.fallbackFn().then(function (result) {
-					result.count.should.equal(1);
-					result.rows.length.should.equal(1);
-					done();
-				}).catch(done);
+		it('should still find results if there is not options', async function () {
+			let query = await mdl.findAndCountAll()
+			let result = await query.fallbackFn()
+			result.count.should.equal(1);
+			result.rows.length.should.equal(1);
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {
@@ -662,21 +646,19 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should return a default value of 1 for number of rows destroyed', function (done) {
-			mdl.destroy()
-				.fallbackFn().then(function (rows) {
-					rows.should.equal(1);
-					done();
-				}).catch(done);
+		it('should return a default value of 1 for number of rows destroyed', async function () {
+			let query = await mdl.destroy();
+			let rows = await query.fallbackFn()
+			rows.should.equal(1);
+			
 		});
 		
-		it('should return the limit for number of rows destroyed if that is passed in', function (done) {
-			mdl.destroy({
+		it('should return the limit for number of rows destroyed if that is passed in', async function () {
+			let query = await mdl.destroy({
 				limit: 5
-			}).fallbackFn().then(function (rows) {
-				rows.should.equal(5);
-				done();
-			}).catch(done);
+			})
+			let rows = await query.fallbackFn()
+			rows.should.equal(5);	
 		});
 		
 		it('should not pass along a fallback function if auto fallback is turned off', function () {

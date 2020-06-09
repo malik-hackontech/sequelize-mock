@@ -1,7 +1,6 @@
 'use strict';
 
 var should = require('should');
-var bluebird = require('bluebird');
 var proxyquire = require('proxyquire').noCallThru();
 
 var ErrorMock = {
@@ -231,20 +230,36 @@ describe('Instance', function () {
 			}).catch(done);
 		});
 		
-		it('should not save if there are validation errors', function (done) {
+		it('should not save if there are validation errors', async function () {
 			var inst = new Instance();
 			inst.$addValidationError('test', 'Test Error Message', 'mock test type');
 			
-			inst.save().then(function (passedIn) {
-				done(new Error('Saved when there were validation errors instead of throwing'));
-			}, function (err) {
+			try {
+				let err = await inst.save();
+				throw new Error('Saved when there were validation errors instead of throwing');
+			} catch (err) {
 				err.errors.length.should.equal(1);
 				err.errors[0].message.should.equal('Test Error Message');
 				err.errors[0].type.should.equal('mock test type');
 				err.errors[0].path.should.equal('test');
-				done();
-			}).catch(done);
+			};
 		});
+		
+
+		// it('should not save if there are validation errors', async function (done) {
+		// 	var inst = new Instance();
+		// 	inst.$addValidationError('test', 'Test Error Message', 'mock test type');
+			
+		// 	inst.save().then(function (passedIn) {
+		// 		done(new Error('Saved when there were validation errors instead of throwing'));
+		// 	}, function (err) {
+		// 		err.errors.length.should.equal(1);
+		// 		err.errors[0].message.should.equal('Test Error Message');
+		// 		err.errors[0].type.should.equal('mock test type');
+		// 		err.errors[0].path.should.equal('test');
+		// 		done();
+		// 	}).catch(done);
+		// });
 		
 		it('should remove the flag for new records', function (done) {
 			var inst = new Instance();
@@ -262,7 +277,7 @@ describe('Instance', function () {
 	describe('#destroy', function () {
 		it('should return a promise object', function () {
 			var inst = new Instance();
-			inst.destroy().should.be.instanceOf(bluebird);
+			inst.destroy().should.be.instanceOf(Promise);
 		});
 	});
 	

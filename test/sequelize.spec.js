@@ -1,7 +1,6 @@
 'use strict';
 
 var should = require('should');
-var bluebird = require('bluebird');
 var proxyquire = require('proxyquire').noCallThru();
 
 var ModelMock = function () {};
@@ -48,14 +47,14 @@ describe('Sequelize', function () {
 		Sequelize.should.have.property('version').which.is.equal('test');
 		Sequelize.should.have.property('options');
 		Sequelize.should.have.property('Utils').which.is.equal(UtilsMock);
-		Sequelize.should.have.property('Promise').which.is.equal(bluebird);
+		Sequelize.should.have.property('Promise').which.is.equal(Promise);
 		Sequelize.should.have.property('Model').which.is.equal(ModelMock);
 	});
 	
 	it('should have top level constants on instances of class', function () {
 		var seq = new Sequelize();
 		seq.should.have.property('Utils').which.is.equal(UtilsMock);
-		seq.should.have.property('Promise').which.is.equal(bluebird);
+		seq.should.have.property('Promise').which.is.equal(Promise);
 		seq.should.have.property('Model').which.is.equal(ModelMock);
 	});
 	
