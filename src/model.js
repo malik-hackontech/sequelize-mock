@@ -474,12 +474,13 @@ fakeModel.prototype.build = function (values, options) {
  * @return {Promise<Instance>} a promise that resolves after saving a new instance with the given properties
  **/
 fakeModel.prototype.create = async function (obj) {
+	let self = this;
 	return await this.$query({
 		query: "Create",
 		queryOptions: arguments,
 		includeCreated: true,
 		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
-			return await self.build(obj.where).save();
+			return await self.build(obj).save();
 		},
 	});
 };
@@ -582,7 +583,10 @@ fakeModel.prototype.bulkCreate = async function (set, options) {
 		query: "bulkCreate",
 		queryOptions: arguments,
 		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
-			return Promise.all( _.map(set, self.create.bind(self)) );
+			return await Promise.all(set.map(async function(val) { 
+				let res = await self.create(val);
+				return await res.fallbackFn();
+			}));
 		},
 	});
 };

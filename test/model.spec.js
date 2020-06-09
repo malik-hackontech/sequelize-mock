@@ -258,16 +258,16 @@ describe('Model', function () {
 			mdl = new Model('foo');
 		});
 		
-		it('should create Instance with Instance.prototype functions', function (done) {
+		it('should create Instance with Instance.prototype functions', async function () {
 			var vals = {
 				'baz' : 'bin'
 			};
 			
-			mdl.create(vals).then(function (inst) {
-				inst.should.be.instanceOf(InstanceMock);
-				inst._args[0].should.have.property('baz').which.is.exactly('bin');
-				done();
-			}).catch(done);
+			let query = await mdl.create(vals);
+			let inst = await query.fallbackFn();
+			inst.should.be.instanceOf(InstanceMock);
+			inst._args[0].should.have.property('baz').which.is.exactly('bin');
+			
 		});
 	});
 	
