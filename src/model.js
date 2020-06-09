@@ -387,7 +387,7 @@ fakeModel.prototype.findOne = async function (obj) {
 	return await this.$query({
 		query: "findOne",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
 			return self.build(obj ? obj.where : {});
 		},
 	});
@@ -431,7 +431,7 @@ fakeModel.prototype.sum = async function (field) {
 	return await this.$query({
 		query: "sum",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null: async function () {
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return } : async function () {
 			return self._defaults[field];
 		},
 	});
@@ -521,7 +521,7 @@ fakeModel.prototype.upsert = async function (values) {
 	return await this.$query({
 		query: "upsert",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return} : async function () {
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return } : async function () {
 			if (Object.keys().length === 0) {
 				return self.options.createdDefault;
 			}
@@ -547,7 +547,7 @@ fakeModel.prototype.upsert = async function (values, returning) {
 		query: "upsert",
 		queryOptions: arguments,
 		//if there is nothing queued, return the input object with a created value equal to the createdDefault
-		fallbackFn: !this.options.autoQueryFallback ? null : async function (values) {
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function (values) {
 			if (typeof values === 'undefined') {
 				return self.options.createdDefault;
 			}
@@ -574,7 +574,7 @@ fakeModel.prototype.bulkCreate = async function (set, options) {
 	return await this.$query({
 		query: "bulkCreate",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
 			return Promise.all( _.map(set, self.create.bind(self)) );
 		},
 	});
@@ -596,7 +596,7 @@ fakeModel.prototype.destroy = async function (options) {
 	return await this.$query({
 		query: "destroy",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
 			return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
 		},
 	});
@@ -620,7 +620,7 @@ fakeModel.prototype.update = async function (values, options) {
 	options = options || {};
 	
 	
-	let res = await this.$query({
+	return await this.$query({
 		query: "update",
 		queryOptions: arguments,
 		options: options,
@@ -633,7 +633,6 @@ fakeModel.prototype.update = async function (values, options) {
 			return [ 1, [self.build(values)] ];
 		}
 	});
-	return res;
 };
 
 // Noops
