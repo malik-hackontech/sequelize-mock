@@ -24,10 +24,9 @@
  * @fileOverview Instances of Models created by Model function calls.
  */
 
-var bluebird = require('bluebird'),
-	_ = require('lodash'),
-	Errors = require('./errors');
-
+var _ = require('lodash');
+var Errors = require('./errors');
+/*  */
 var id = 0;
 
 /**
@@ -232,7 +231,7 @@ fakeModelInstance.prototype.setDataValue = function (key, value) {
  * @instance
  * @return {Promise<ValidationErrorItem|undefined>} will resolve with any errors, or with nothing if there were no errors queued.
  **/
-fakeModelInstance.prototype.validate = function () {
+fakeModelInstance.prototype.validate = async function () {
 	var self = this,
 		validationError;
 	
@@ -250,7 +249,7 @@ fakeModelInstance.prototype.validate = function () {
 		this.$clearValidationErrors();
 	}
 	
-	return bluebird.resolve(validationError);
+	return validationError;
 };
 
 /**
@@ -260,15 +259,15 @@ fakeModelInstance.prototype.validate = function () {
  * @instance
  * @return {Promise<Instance>} Instance if there are no validation errors, otherwise it will reject the promise with those errors
  **/
-fakeModelInstance.prototype.save = function () {
+fakeModelInstance.prototype.save = async function () {
 	var self = this;
-	return this.validate().then(function (err) {
-		if(err)
-			throw err;
-		self.options.isNewRecord = false;
-		self.isNewRecord = false;
-		return self;
-	});
+	let err  = await this.validate();
+	if (err) {
+		throw err;
+	}
+	self.options.isNewRecord = false;
+	self.isNewRecord = false;
+	return self;
 };
 
 /**
@@ -277,17 +276,14 @@ fakeModelInstance.prototype.save = function () {
  * @instance
  * @return {Promise} will always resolve as a successful destroy
  **/
-fakeModelInstance.prototype.destroy = function () {
-	var queued = this.Model.$query();
+fakeModelInstance.prototype.destroy = async function () {
+	var queued = await this.Model.$query();
 	if(queued.type === 'Failure'){
 		throw queued.content;
 	}
-	else{
-		this.Model.$queueResult(queued.content, queued.options);
-	}
-	
+	this._values = queued.content;
 	this._values.deletedAt = new Date();
-	return bluebird.resolve();
+	return;
 };
 
 /**
@@ -296,8 +292,8 @@ fakeModelInstance.prototype.destroy = function () {
  * @instance
  * @return {Promise<Instance>} will always resolve with the current instance
  **/
-fakeModelInstance.prototype.reload = function () {
-	return bluebird.resolve(this);
+fakeModelInstance.prototype.reload = async function () {
+	return this;
 };
 
 /**
@@ -309,7 +305,7 @@ fakeModelInstance.prototype.reload = function () {
  * @see {@link save}
  * @return {Promise<Instance>} Promise from the save function
  **/
-fakeModelInstance.prototype.update = function (obj) {
+fakeModelInstance.prototype.update = async function (obj) {
 	for(var k in obj)
 		this.set(k, obj[k]);
 	return this.save();

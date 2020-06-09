@@ -20,8 +20,7 @@
  * @fileOverview The mock QueryInterface base that is used for returning results from queries for tests
  **/
 
-var bluebird = require('bluebird'),
-	_ = require('lodash'),
+var _ = require('lodash'),
 	Errors = require('./errors');
 
 /**
@@ -180,7 +179,7 @@ function resultsQueueHandler(qi, options) {
 		}
 		
 		if(result.type == 'Failure') {
-			return bluebird.reject(result.content);
+			throw result.content;
 		}
 		
 		if(options.includeCreated) {
@@ -189,7 +188,7 @@ function resultsQueueHandler(qi, options) {
 				created = !!result.options.wasCreated;
 			}
 			
-			return bluebird.resolve([result.content, created]);
+			return [result.content, created];
 		}
 		if (options.includeAffectedRows) {
 			var affectedRows = [];
@@ -197,9 +196,9 @@ function resultsQueueHandler(qi, options) {
 				affectedRows = result.options.affectedRows;
 			}
 			
-			return bluebird.resolve([result.content, affectedRows]);
+			return [result.content, affectedRows];
 		}
-		return bluebird.resolve(result.content);
+		return result.content;
 	}
 }
 
@@ -232,6 +231,7 @@ function fallbackHandler(qi, options) {
  * @param {Object} [options.queryOptions] Array with the arguments passed to the original query method
  * @return {Promise} resolved or rejected promise from the next item in the review queue
  **/
+
 QueryInterface.prototype.$query = function (options) {
 	options = options || {};
 
@@ -256,7 +256,7 @@ QueryInterface.prototype.$query = function (options) {
 	processHandler(handlers.shift());
 
 	// Always convert the result to a promise. If the promise was rejected, this method will return a rejected promise.
-	return bluebird.resolve(result);
+	return Promise.resolve(result);
 };
 
 module.exports = QueryInterface;

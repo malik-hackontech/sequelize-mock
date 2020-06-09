@@ -9,7 +9,6 @@
 
 var path = require('path'),
 	_ = require('lodash'),
-	bluebird = require('bluebird'),
 	Model = require('./model'),
 	Instance = require('./instance'),
 	Utils = require('./utils'),
@@ -106,7 +105,7 @@ Sequelize.prototype.Utils = Sequelize.Utils = Utils;
  * 
  * @property
  **/
-Sequelize.prototype.Promise = Sequelize.Promise = bluebird;
+Sequelize.prototype.Promise = Sequelize.Promise = Promise;
 
 /**
  * Object containing all of the [Sequelize QueryTypes](https://github.com/sequelize/sequelize/blob/3e5b8772ef75169685fc96024366bca9958fee63/lib/query-types.js).
@@ -382,16 +381,13 @@ Sequelize.prototype.query = function () {
  * @param {Function} [fn] Optional function to run as a tranasction
  * @return {Promise} Promise that resolves the code is successfully run, otherwise it is rejected
  */
-Sequelize.prototype.transaction = function (fn) {
+Sequelize.prototype.transaction = async function (fn) {
 	if(!fn) {
-		fn = function (t) {
-			return bluebird.resolve(t);
+		fn = async function (t) {
+			return t;
 		};
 	}
-	return new bluebird(function (resolve, reject) {
-		// TODO Return mock transaction object
-		return fn({}).then(resolve, reject);
-	});
+	return fn({});
 };
 
 /**
@@ -409,10 +405,8 @@ Sequelize.prototype.literal = function (arg) {
  *
  * @return {Promise} will always resolve as a successful authentication
  */
-Sequelize.prototype.authenticate = function() {
-	return new bluebird(function (resolve) {
-		return resolve();
-	});
+Sequelize.prototype.authenticate = async function() {
+	return;
 };
 
 module.exports = Sequelize;

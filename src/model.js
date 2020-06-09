@@ -10,8 +10,7 @@
  * @fileOverview The base mock Model object for use in tests
  */
 
-var Promise = require('bluebird'),
-	_ = require('lodash'),
+var _ = require('lodash'),
 	nodeutil = require('util'),
 	Utils = require('./utils'),
 	Instance = require('./instance'),
@@ -197,8 +196,8 @@ function fakeModel (name, defaults, opts) {
  * @instance
  * @return {Promise<Model>} Self
  **/
-fakeModel.prototype.sync = function () {
-	return Promise.resolve(this);
+fakeModel.prototype.sync = async function () {
+	return this;
 };
 
 /**
@@ -207,8 +206,8 @@ fakeModel.prototype.sync = function () {
  * @instance
  * @return {Promise} Promise that always resolves
  **/
-fakeModel.prototype.drop = function () {
-	return Promise.resolve();
+fakeModel.prototype.drop = async function () {
+	return;
 };
 
 /**
@@ -273,14 +272,14 @@ fakeModel.prototype.addScope = function () {};
  * @param {Object} [options.where] Values that any automatically created Instances should have
  * @return {Promise<Instance[]>} result returned by the mock query
  **/
-fakeModel.prototype.findAll =  function (options) {
+fakeModel.prototype.findAll =  async function (options) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "findAll",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return Promise.resolve([ self.build(options ? options.where : {}) ]);
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return } : async function () {
+			return [ self.build(options ? options.where : {}) ];
 		},
 	});
 };
@@ -316,20 +315,18 @@ fakeModel.prototype.findAll =  function (options) {
  * @return {Promise<Object>} result returned by the mock query
  **/
 fakeModel.prototype.findAndCount =
-fakeModel.prototype.findAndCountAll =  function (options) {
+fakeModel.prototype.findAndCountAll =  async function (options) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "findAndCountAll",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return Promise.resolve([ self.build(options ? options.where : {}) ])
-				.then(function(result){
-					return Promise.resolve({
-						count: result.length,
-						rows: result
-					});
-				});
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
+			let result =  [ self.build(options ? options.where : {}) ]
+			return {
+				count: result.length,
+				rows: result
+			};
 		},
 	});
 };
@@ -347,14 +344,14 @@ fakeModel.prototype.findAndCountAll =  function (options) {
  * @return {Promise<Instance>} Promise that resolves with an instance with the given ID
  **/
 fakeModel.prototype.findById = 
-fakeModel.prototype.findByPk = function (id) {
+fakeModel.prototype.findByPk = async function (id) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "findById",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return Promise.resolve( self.build({ id: id }) );
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return } : async function () {
+			return self.build({ id: id });
 		},
 	});
 };
@@ -384,14 +381,14 @@ fakeModel.prototype.findByPk = function (id) {
  * @return {Promise<Instance>} Promise that resolves with an instance with the given properties
  **/
 fakeModel.prototype.find =
-fakeModel.prototype.findOne = function (obj) {
+fakeModel.prototype.findOne = async function (obj) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "findOne",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return Promise.resolve( self.build(obj ? obj.where : {}) );
+		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
+			return self.build(obj ? obj.where : {});
 		},
 	});
 };
@@ -428,14 +425,14 @@ fakeModel.prototype.min =
  * @param {String} field Name of the field to return for
  * @return {Any} the default value for the given field
  **/
-fakeModel.prototype.sum = function (field) {
+fakeModel.prototype.sum = async function (field) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "sum",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return Promise.resolve(self._defaults[field]);
+		fallbackFn: !this.options.autoQueryFallback ? null: async function () {
+			return self._defaults[field];
 		},
 	});
 };
@@ -476,8 +473,8 @@ fakeModel.prototype.build = function (values, options) {
  * @param {Object} options Map of values that the instance should have
  * @return {Promise<Instance>} a promise that resolves after saving a new instance with the given properties
  **/
-fakeModel.prototype.create = function (obj) {
-	return this.build(obj).save();
+fakeModel.prototype.create = async function (obj) {
+	return await this.build(obj).save();
 };
 /**
  * Executes a mock query to find or create an Instance with the given properties. Without
@@ -492,17 +489,16 @@ fakeModel.prototype.create = function (obj) {
  * @param {Object} options.where Map of values that the instance should have
  * @return {Promise<Array<Instance, Boolean>>} Promise that includes the instance and whether or not it was created
  **/
-fakeModel.prototype.findOrCreate = function (obj) {
+fakeModel.prototype.findOrCreate = async function (obj) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "findOrCreate",
 		queryOptions: arguments,
 		includeCreated: true,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return self.build(obj.where).save().then(function (result) {
-					return Promise.resolve([result, true]);
-				});
+		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
+			let result = await self.build(obj.where).save()
+			return [result, true];
 		},
 	});
 };
@@ -519,14 +515,19 @@ fakeModel.prototype.findOrCreate = function (obj) {
  * @return {Promise<Boolean>} Promise that resolves with a boolean meant to indicate if something was inserted
  **/
 fakeModel.prototype.insertOrUpdate =
-fakeModel.prototype.upsert = function (values) {
+fakeModel.prototype.upsert = async function (values) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "upsert",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return self.build(values).save().return(self.options.createdDefault);
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return} : async function () {
+			if (Object.keys().length === 0) {
+				return self.options.createdDefault;
+			}
+			else {
+				return await self.build(values).save();
+			}
 		},
 	});
 }
@@ -539,15 +540,20 @@ fakeModel.prototype.upsert = function (values) {
  * @param {Boolean} returning Whether the call should return Promise<[M, boolean]> or just boolean
  * @return {Promise<Instance, Boolean>} Promise that resolves with upserted instance and a boolean to indicate if it was created 
  **/
-fakeModel.prototype.upsert = function (values, returning) {
+fakeModel.prototype.upsert = async function (values, returning) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "upsert",
 		queryOptions: arguments,
 		//if there is nothing queued, return the input object with a created value equal to the createdDefault
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
-			return self.build(values).save().return([self.build(values), self.options.createdDefault]);
+		fallbackFn: !this.options.autoQueryFallback ? null : async function (values) {
+			if (typeof values === 'undefined') {
+				return self.options.createdDefault;
+			}
+			else {
+				return await self.build(values).save();
+			}
 		},
 	});
 }
@@ -562,13 +568,13 @@ fakeModel.prototype.upsert = function (values, returning) {
  * @param {Array<Object>} set Set of values to create objects for
  * @return {Promise<Instance[]>} Promise that contains all created Instances
  **/
-fakeModel.prototype.bulkCreate = function (set, options) {
+fakeModel.prototype.bulkCreate = async function (set, options) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "bulkCreate",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
+		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
 			return Promise.all( _.map(set, self.create.bind(self)) );
 		},
 	});
@@ -584,13 +590,13 @@ fakeModel.prototype.bulkCreate = function (set, options) {
  * @param {Number} [options.limit] Number of rows that are deleted
  * @return {Promise<Integer>} Promise with number of deleted rows
  **/
-fakeModel.prototype.destroy = function (options) {
+fakeModel.prototype.destroy = async function (options) {
 	var self = this;
 	
-	return this.$query({
+	return await this.$query({
 		query: "destroy",
 		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
+		fallbackFn: !this.options.autoQueryFallback ? null : async function () {
 			return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
 		},
 	});
@@ -609,23 +615,25 @@ fakeModel.prototype.destroy = function (options) {
  * @param {Object} [options.returning] Whether or not to include the updated models in the return
  * @return {Promise<Array>} Promise with an array of the number of affected rows and the affected rows themselves unless `options.returning` is true
  **/
-fakeModel.prototype.update = function (values, options) {
+fakeModel.prototype.update = async function (values, options) {
 	var self = this;
 	options = options || {};
 	
-	return this.$query({
+	
+	let res = await this.$query({
 		query: "update",
 		queryOptions: arguments,
 		options: options,
 		//if options.returning are empty or false, we are doing the default (returning both)
-		includeAffectedRows: !!options.returning,
-		fallbackFn: !this.options.autoQueryFallback ? null : function () {
+		includeAffectedRows: !!!options.returning,
+		fallbackFn: !this.options.autoQueryFallback ? null : async function() {
 			if(!options.returning) {
-				return Promise.resolve([ 1, [self.build(values)] ]);
+				return [1];
 			}
-			return Promise.resolve([1]);
-		},
+			return [ 1, [self.build(values)] ];
+		}
 	});
+	return res;
 };
 
 // Noops
