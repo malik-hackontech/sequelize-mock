@@ -1,5 +1,9 @@
 # Changelog
 
+v1.0.0 - June 10th 2020
+* Redo code to no longer use bluebird
+* Refactor to support Sequelize v5
+
 v0.10.2 - 8ed75d2 - Dec 4th 2017
   * Fix for DataTypes not being exposed during `sequelize.import` calls
   * *DEV* Added .editorconfig file to normalize editors and minimize whitespace changes

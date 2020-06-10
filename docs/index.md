@@ -1,6 +1,6 @@
-# ![Sequelize Mock](images/text.logo.png)
+# ![Sequelize Mock v5](images/text.logo.png)
 
-Sequelize Mock is a mocking library for [Sequelize](http://sequelizejs.com). Mock objects created with this library are meant for use in testing code that relies on Sequelize Models. Code does not rely on any database connections and can therefore be easily used in unit and integration tests without requiring the setup of a test database system.
+Sequelize Mock v5 is a mocking library for [Sequelize](http://sequelizejs.com). Mock objects created with this library are meant for use in testing code that relies on Sequelize Models. Code does not rely on any database connections and can therefore be easily used in unit and integration tests without requiring the setup of a test database system.
 
 [Installation](docs/getting-started.md)
 

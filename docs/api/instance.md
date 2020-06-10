@@ -1,6 +1,6 @@
 # Instance
 
-Instances are the individual results from a Sequelize call. In SequelizeMock, these objects
+Instances are the individual results from a Sequelize call. In SequelizeMock v5, these objects
 have most of the same attributes as in the normal Sequelize Instance, however they also have
 a few additional bits of functionality.
 

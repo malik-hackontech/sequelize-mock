@@ -1,5 +1,5 @@
 {
-  "name": "sequelize-mock",
+  "name": "sequelize-mock-v5",
   "version": "1.0.0",
   "description": "A simple mock interface specifically for testing code relying on Sequelize models",
   "main": "src/index.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BlinkUX/sequelize-mock.git"
+    "url": "git+https://github.com/foyer-inc/sequelize-mock.git"
   },
   "keywords": [
     "sequelize",
@@ -21,14 +21,13 @@
     "test",
     "testing"
   ],
-  "author": "Blink UX",
+  "author": "Foyer Inc",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/BlinkUX/sequelize-mock/issues"
+    "url": "https://github.com/foyer-inc/sequelize-mock/issues"
   },
-  "homepage": "https://github.com/BlinkUX/sequelize-mock#readme",
+  "homepage": "https://github.com/foyer-inc/sequelize-mock#readme",
   "dependencies": {
-    "bluebird": "^3.4.6",
     "inflection": "^1.10.0",
     "lodash": "^4.16.4"
   },

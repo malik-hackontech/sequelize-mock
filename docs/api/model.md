@@ -306,15 +306,15 @@ Name | Type | Description
 
 
 
-<a name="findById"></a>
-## findById(id) -> Promise.&#60;Instance&#62;
+<a name="findByPk"></a>
+## findByPk(pk) -> Promise.&#60;Instance&#62;
 
 Executes a mock query to find an instance with the given ID value. Without any other
-configuration, the default behavior when no queueud query result is present is to
+configuration, the default behavior when no queued query result is present is to
 create a new Instance with the given id and wrap it in a promise.
 
 To turn off this behavior, the `$autoQueryFallback` option on the model should be set
-to `false`.
+to `false`. <br>**Alias** findById
 
 ###  Parameters
 
@@ -494,7 +494,7 @@ options.where | Object | Map of values that the instance should have
 ## upsert(values) -> Promise.&#60;Boolean&#62;
 
 Executes a mock query to upsert an Instance with the given properties. Without any
-other configuration, the default behavior when no queueud query result is present is
+other configuration, the default behavior when no queued query result is present is
 to return the `options.createdDefault` value indicating if a new item has been created <br>**Alias** insertOrUpdate
 
 ###  Parameters
@@ -513,7 +513,7 @@ values | Object | Values of the Instance being created
 ## bulkCreate(set) -> Promise.&#60;Array.&#60;Instance&#62;&#62;
 
 Executes a mock query to create a set of new Instances in a bulk fashion. Without any
-other configuration, the default behavior when no queueud query result is present is
+other configuration, the default behavior when no queued query result is present is
 to trigger a create on each item in a the given `set`.
 
 **See**
@@ -536,7 +536,7 @@ set | Array.&#60;Object&#62; | Set of values to create objects for
 ## destroy([options]) -> Promise.&#60;Integer&#62;
 
 Executes a mock query to destroy a set of Instances. Without any other configuration,
-the default behavior when no queueud query result is present is to resolve with either
+the default behavior when no queued query result is present is to resolve with either
 the limit from the options or a 1.
 
 ###  Parameters
@@ -556,7 +556,7 @@ Name | Type | Description
 ## update(values, [options]) -> Promise.&#60;Array&#62;
 
 Executes a mock query to update a set of instances. Without any other configuration,
-the default behavior when no queueud query result is present is to create 1 new
+the default behavior when no queued query result is present is to create 1 new
 Instance that matches the where value from the first parameter and returns a Promise
 with an array of the count of affected rows (always 1) and the affected rows if the
 `returning` option is set to true
