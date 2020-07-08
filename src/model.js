@@ -81,7 +81,13 @@ function fakeModel (name, defaults, opts) {
 	this.Instance = function() {
 		Instance.apply(this, arguments);
 	};
+
 	nodeutil.inherits(this.Instance, Instance);
+	Object.getOwnPropertyNames(this.constructor.prototype).forEach((property) => {
+		if (property !== 'constructor') {
+			this.Instance.prototype[property] = this.constructor.prototype[property];
+		}
+	});
 	
 	if(this.options.instanceMethods) {
 		_.each(this.options.instanceMethods, function (fn, name) {
@@ -192,6 +198,21 @@ function fakeModel (name, defaults, opts) {
 	this.$clearQueue = this.$queueClear = this.$queryInterface.$clearQueue.bind(this.$queryInterface);
 	this.$query = this.$queryInterface.$query.bind(this.$queryInterface);
 }
+
+/**
+ * Initializer that sets up a new object
+ * 
+ * @static
+ * @param {Object} [attributes] Options for the define call
+ * @param {Object} [options] Used for constructing the object (sequelize and the model name must be passed)
+ * @return {undefined}
+ **/
+fakeModel.init = function (attributes, options = {}) {
+	const sequelize = options.sequelize;
+	const modelName = options.modelName;
+	options.modelClass = this;
+	return sequelize.define(modelName, attributes, options);
+};
 
 /**
  * No-op that returns a promise with the current object
