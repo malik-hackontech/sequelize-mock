@@ -57,11 +57,9 @@ function fakeModel (name, defaults, opts) {
 			'autoQueryFallback',
 			'stopPropagation',
 			'fallbackFn',
+			'sequelize'
 		]
 	), opts || {});
-	
-	//Pull this out for drop-in support in Foyer's testing -- needed for raw queries
-	this.sequelize = opts.sequelize;
 	
 	/**
 	 * Name given to the model on initialization
