@@ -289,8 +289,10 @@ Sequelize.prototype.define = function (name, obj, opts) {
 		sequelize: this,
 	}, opts || {})
 	
+
 	const modelClass = opts.modelClass || Model;
 	var model = new modelClass(name, obj, opts);
+
 	this.models[name] = model;
 	return model;
 };
@@ -368,7 +370,7 @@ Sequelize.prototype.model = function (name) {
 /**
  * Run a mock query against the `QueryInterface` associated with this Sequelize instance
  * 
- * @return {Promise<Any>} The next result of a query as queued to the `QueryInterface`
+ * @return {string} The next result of a query as queued to the `QueryInterface`
  */
 Sequelize.prototype.query = function () {
 	return this.queryInterface.$query();
@@ -379,7 +381,7 @@ Sequelize.prototype.query = function () {
  * Sequelize Mock does not run any actual queries, there is no difference between code
  * run through transactions and those that aren't.
  * 
- * @param {Function} [fn] Optional function to run as a tranasction
+ * @param {Function} [fn] Optional function to run as a transaction
  * @return {Promise} Promise that resolves the code is successfully run, otherwise it is rejected
  */
 Sequelize.prototype.transaction = async function (fn) {
