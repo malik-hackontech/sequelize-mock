@@ -289,8 +289,10 @@ Sequelize.prototype.define = function (name, obj, opts) {
 		sequelize: this,
 	}, opts || {})
 	
-	var model = new Model(name, obj, opts);
-	model.sequelize = this;
+
+	const modelClass = opts.modelClass || Model;
+	var model = new modelClass(name, obj, opts);
+
 	this.models[name] = model;
 	return model;
 };
