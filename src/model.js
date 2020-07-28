@@ -60,6 +60,8 @@ function fakeModel (name, defaults, opts) {
 		]
 	), opts || {});
 	
+	this.sequelize = this.options.sequelize;
+	
 	/**
 	 * Name given to the model on initialization
 	 * 
