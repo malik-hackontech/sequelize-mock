@@ -624,14 +624,25 @@ fakeModel.prototype.bulkCreate = async function (set, options) {
  **/
 fakeModel.prototype.destroy = async function (options) {
 	var self = this;
+	if (this.$query) {
+		return await this.$query({
+			query: "destroy",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
+				return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
+			},
+		});
+	}
+	else {
+		return await this.__proto__.Model.$query({
+			query: "destroy",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
+				return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
+			},
+		});
+	}
 	
-	return await this.$query({
-		query: "destroy",
-		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
-			return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
-		},
-	});
 };
 
 /**
