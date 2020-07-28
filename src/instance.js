@@ -277,17 +277,8 @@ fakeModelInstance.prototype.save = async function () {
  * @return {Promise} will always resolve as a successful destroy
  **/
 fakeModelInstance.prototype.destroy = async function () {
-	return await this.Model.$query({
-		query: "destroy",
-		queryOptions: arguments,
-		fallbackFn: async function() {
-			if (this._timestampAttributes.deletedAt) {
-				this._values.deletedAt = new Date();
-				return await this.save();
-			}
-			return
-		}
-	});
+	this._values.deletedAt = new Date();
+	return await this.save();
 };
 
 /**
