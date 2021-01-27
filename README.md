@@ -16,7 +16,7 @@ The Mock Models created with this library function as drop in replacements for y
 Start by importing the library
 
 ```javascript
-var SequelizeMock = require('sequelize-mock');
+var SequelizeMock = require('sequelize-mock-v5');
 ```
 
 Initialize the library as you would Sequelize
@@ -30,7 +30,7 @@ Define your models
 ```javascript
 var UserMock = DBConnectionMock.define('users', {
 		'email': 'email@example.com',
-		'username': 'blink',
+		'username': 'foyer',
 		'picture': 'user-picture.jpg',
 	}, {
 		instanceMethods: {
