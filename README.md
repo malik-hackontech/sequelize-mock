@@ -1,9 +1,7 @@
 # Sequelize Mock
-[![npm](https://img.shields.io/npm/v/sequelize-mock.svg)](https://www.npmjs.com/package/sequelize-mock) [![CircleCI](https://img.shields.io/circleci/project/BlinkUX/sequelize-mock.svg)](https://circleci.com/gh/BlinkUX/sequelize-mock) [![Coveralls](https://img.shields.io/coveralls/BlinkUX/sequelize-mock.svg)](https://coveralls.io/github/BlinkUX/sequelize-mock) [![MIT License](https://img.shields.io/github/license/BlinkUX/sequelize-mock.svg)](https://github.com/BlinkUX/sequelize-mock) [![Documentation Status](https://readthedocs.org/projects/sequelize-mock/badge/?version=stable)](http://sequelize-mock.readthedocs.io/en/stable/?badge=stable)
+[![npm](https://img.shields.io/npm/v/sequelize-mock-v5.svg)](https://www.npmjs.com/package/sequelize-mock-v5) [![MIT License](https://img.shields.io/github/license/Foyer-Inc/sequelize-mock.svg)](https://github.com/Foyer-Inc/sequelize-mock)
 
 A mocking interface designed for testing code that uses [Sequelize](http://sequelizejs.com).
-
-Documentation at [sequelize-mock.readthedocs.io](https://sequelize-mock.readthedocs.io/)
 
 ## Install
 
@@ -57,7 +55,7 @@ UserMock.findOne({
 	user.get('id');         // Auto-Incrementing ID available on all Models
 	user.get('email');      // 'email@example.com'; Pulled from default values
 	user.get('username');   // 'my-user'; Pulled from the `where` in the query
-	
+
 	user.myTestFunc();      // Will return 'Test User' as defined above
 });
 ```
