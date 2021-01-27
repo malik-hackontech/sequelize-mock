@@ -624,13 +624,21 @@ fakeModel.prototype.bulkCreate = async function (set, options) {
  * @return {Promise<Integer>} Promise with number of deleted rows
  **/
 fakeModel.prototype.destroy = async function (options) {
-	return await this.$query({
-		query: "destroy",
-		queryOptions: arguments,
-		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
-			return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
-		},
-	});
+	var self = this;
+	if (this.$query) {
+		return await this.$query({
+			query: "destroy",
+			queryOptions: arguments,
+			fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
+				return Promise.resolve(options && typeof options.limit == 'number' ? options.limit : 1);
+			},
+		});
+	}
+	else {
+        const instanceLevelDestroy = this.__proto__.__proto__.destroy.bind(this);
+        return await instanceLevelDestroy()
+	}
+
 };
 
 /**
@@ -649,19 +657,25 @@ fakeModel.prototype.destroy = async function (options) {
 fakeModel.prototype.update = async function (values, options) {
 	var self = this;
 	options = options || {};
-	return await this.$query({
-		query: "update",
-		queryOptions: arguments,
-		options: options,
-		//if options.returning are empty or false, we are doing the default (returning both)
-		includeAffectedRows: !!!options.returning,
-		fallbackFn: !this.options.autoQueryFallback ? null : async function() {
-			if(!options.returning) {
-				return [1];
-			}
-			return [ 1, [self.build(values)] ];
-		}
-	});
+	if (this.$query) {
+        return await this.$query({
+            query: "update",
+            queryOptions: arguments,
+            options: options,
+            //if options.returning are empty or false, we are doing the default (returning both)
+            includeAffectedRows: !!!options.returning,
+            fallbackFn: !this.options.autoQueryFallback ? null : async function() {
+                if(!options.returning) {
+                    return [1];
+                }
+                return [ 1, [self.build(values)] ];
+            }
+        });
+    }
+    else {
+        const instanceLevelUpdate = this.__proto__.__proto__.update.bind(this, values);
+        return await instanceLevelUpdate()
+    }
 
 };
 
