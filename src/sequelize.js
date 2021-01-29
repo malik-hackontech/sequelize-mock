@@ -290,6 +290,7 @@ Sequelize.prototype.define = function (name, obj, opts) {
 	}, opts || {})
 
 	var model = new Model(name, obj, opts);
+	model.prototype = {}; //This line forces `prototype` onto the returned instance
 	this.models[name] = model;
 	return model;
 };

@@ -606,8 +606,7 @@ fakeModel.prototype.bulkCreate = async function (set, options) {
 		queryOptions: arguments,
 		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
 			return await Promise.all(set.map(async function(val) {
-				let res = await self.create(val);
-				return await res.fallbackFn();
+				return await self.build(val).save();
 			}));
 		},
 	});
