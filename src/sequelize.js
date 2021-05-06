@@ -14,7 +14,8 @@ var path = require('path'),
 	Utils = require('./utils'),
 	Errors = require('./errors'),
 	DataTypes = require('./data-types')({}),
-	QueryInterface = require('./queryinterface');
+	QueryInterface = require('./queryinterface'),
+	Op = require('./operators');
 
 /**
  * Sequelize Mock Object. This can be initialize much the same way that Sequelize itself
@@ -409,5 +410,11 @@ Sequelize.prototype.literal = function (arg) {
 Sequelize.prototype.authenticate = async function() {
 	return;
 };
+
+/**
+ * Operators symbols to be used for querying data
+ * @see  {@link Operators}
+ */
+Sequelize.Op = Op;
 
 module.exports = Sequelize;
