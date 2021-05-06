@@ -6,7 +6,7 @@ A mocking interface designed for testing code that uses [Sequelize](http://seque
 ## Install
 
 ```
-npm i sequelize-mock --save-dev
+npm i sequelize-mock-v5 --save-dev
 ```
 
 ## Getting Started
