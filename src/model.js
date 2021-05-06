@@ -355,6 +355,44 @@ fakeModel.prototype.findAndCountAll =  async function (options) {
 };
 
 /**
+ * Executes a mock query to count all of the instances with any provided options. Without any other configuration, the default behavior when no queueud query result
+ * is present is to create an array of a single result based on the where query in the options and
+ * wraps it in a promise.
+ *
+ * To turn off this behavior, the `$autoQueryFallback` option on the model should be set
+ * to `false`.
+ *
+ * @example
+ * // This is an example of the default behavior with no queued results
+ * // If there is a queued result or failure, that will be returned instead
+ * User.count({
+ * 	where: {
+ * 		email: 'myEmail@example.com',
+ * 	},
+ * }).then(function (count) {
+ * 	// count == 1 true
+ * });
+ *
+ * @instance
+ * @method count
+ * @param {Object} [options] Options for the count query
+ * @param {Object} [options.where] Values that any automatically created Instances should have
+ * @return {Promise<Object>} result returned by the mock query
+ **/
+ fakeModel.prototype.count =  async function (options) {
+	var self = this;
+
+	return await this.$query({
+		query: "count",
+		queryOptions: arguments,
+		fallbackFn: !this.options.autoQueryFallback ? async function() { return }  : async function () {
+			let result =  [ self.build(options ? options.where : {}) ]
+			return result.length
+		}
+	});
+};
+
+/**
  * Executes a mock query to find an instance with the given primary key value. Without any other
  * configuration, the default behavior when no queueud query result is present is to
  * create a new Instance with the given id and wrap it in a promise.
