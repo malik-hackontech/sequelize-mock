@@ -380,16 +380,26 @@ Sequelize.prototype.query = function () {
  * Sequelize Mock does not run any actual queries, there is no difference between code
  * run through transactions and those that aren't.
  *
- * @param {Function} [fn] Optional function to run as a transaction
+ *
+ * @param {Object}   [options] Transaction options
+ * @param {string}   [options.type='DEFERRED'] See `Sequelize.Transaction.TYPES` for possible options. Sqlite only.
+ * @param {string}   [options.isolationLevel] See `Sequelize.Transaction.ISOLATION_LEVELS` for possible options
+ * @param {string}   [options.deferrable] Sets the constraints to be deferred or immediately checked. See `Sequelize.Deferrable`. PostgreSQL Only
+ * @param {Function} [options.logging=false] A function that gets executed while running the query to log the sql.
+ * @param {Function} [autoCallback] The callback is called with the transaction object, and should return a promise. If the promise is resolved, the transaction commits; if the promise rejects, the transaction rolls back
  * @return {Promise} Promise that resolves the code is successfully run, otherwise it is rejected
  */
-Sequelize.prototype.transaction = async function (fn) {
-	if(!fn) {
-		fn = async function (t) {
+Sequelize.prototype.transaction = async function (options, autoCallback) {
+	if (typeof options === 'function') {
+		autoCallback = options;
+		options = undefined;
+	}
+	if(!autoCallback) {
+		autoCallback = async function (t) {
 			return t;
 		};
 	}
-	return fn({});
+	return autoCallback({});
 };
 
 /**
