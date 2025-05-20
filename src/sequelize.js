@@ -399,7 +399,10 @@ Sequelize.prototype.transaction = async function (options, autoCallback) {
 			return t;
 		};
 	}
-	return autoCallback({});
+	return autoCallback({
+		commit: () => {},
+		rollback: () => {}
+	});
 };
 
 /**
